@@ -1,0 +1,82 @@
+int* entryTime;
+int* treeOutDegree;
+int* reachableAncestor;
+
+
+void DFS(int startVertice)
+{
+	StackNode_t * vertice;
+	exploredVertices[startVertice] = 1;
+	vertice = arrayOfVertices[startVertice];
+	processVertexEarly(startVertice);
+	time++;
+	entryTime[startVertice] = time;
+	while (vertice != NULL)
+	{
+		processEdge(startVertice, vertice->vertice);
+		if (exploredVertices[vertice->vertice] == 0)
+		{
+			parentsOfVertices[vertice->vertice] = startVertice;
+			DFS(vertice->vertice);
+		}
+		vertice = vertice->previous;
+	}
+	processVertexLate(startVertice);
+	time++;
+	exploredVertices[startVertice] = 2;
+
+}
+
+int edgeClassification(x,y)
+{
+	if (exploredVertices[y] == 0)
+	{
+		return TREE;
+	}
+	else
+		return BACK;
+}
+
+void processEdge(x, y)
+{
+	int class;
+	class = edgeClassification(x, y);
+	if (class == TREE)
+		treeOutDegree[x] = treeOutDegree[x] + 1; //отже у вершини проведено древесне ребро
+	else if(entryTime[y]<entryTime[reachableAncestor[x]])					// не сходиться!!!
+		reachableAncestor[x] = y;
+}
+
+void processVertexEarly(int vertice)
+{
+	reachableAncestor[vertice] = vertice;
+}
+
+void processVertexLate(int vertice)
+{
+	int root;
+	int time_v;
+	int time_parent;
+	if (parentsOfVertices[vertice] < 1)
+	{
+		if (treeOutDegree[vertice] > 1)
+			printf("Вершина [%d] - шарнір\n", vertice);
+		return;
+	}
+	root = (parentsOfVertices[parentsOfVertices[vertice]] < 1);
+	if (reachableAncestor[vertice] == parentsOfVertices[vertice] && !root)
+		printf("Вершина [%d] - шарнір\n", parentsOfVertices[vertice]);
+	if (reachableAncestor[vertice] == vertice && !root)
+	{
+		printf("Вершина [%d] - шарнір\n", parentsOfVertices[vertice]);
+		if (treeOutDegree[vertice] > 0)
+			printf("Вершина [%d] - шарнір\n",vertice);
+	}
+	time_v = entryTime[reachableAncestor[vertice]];
+	time_parent = entryTime[reachableAncestor[parentsOfVertices[vertice]]];
+	if (time_v < time_parent)
+	{
+		reachableAncestor[parentsOfVertices[vertice]] = reachableAncestor[vertice];
+	}
+
+}
